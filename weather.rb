@@ -6,35 +6,36 @@ if Gem.win_platform?
     io.set_encoding(Encoding.default_external, Encoding.default_internal)
   end
 end
-
+#require 'telegram/bot'
 require 'rexml/document'
 require 'uri'
 require 'net/http'
 require 'uri-handler'
+require 'json'
+require 'debug'
 require_relative 'Forecast'
-CITIES = {
-  37 => 'Москва',
-  69 => 'Санкт-Петербург',
-  99 => 'Новосибирск',
-  59 => 'Пермь',
-  115 => 'Орел',
-  121 => 'Чита',
-  9014 => 'Северодонецк',
-  135 => 'Ростов-на-Дону'
-}.invert.freeze
-city_names = CITIES.keys
+
+#TOKEN = "5275892175:AAHR22gLPKIDKne8Lm6ML_kuE_k7FB8R1cI"
+
+file = File.read('cities.json', encoding: "UTF-8")
+city_names = JSON.parse(file)
+
+puts "У нас в базе есть #{city_names.keys.size} городов:"
+puts city_names.keys
 
 puts 'Погоду для какого города Вы хотите узнать?'
-city_names.each_with_index { |name, index| puts "#{index + 1}: #{name}" }
-city_index = gets.to_i
-unless city_index.between?(1, city_names.size)
-  city_index = gets.to_i
-  puts "Введите число от 1 до #{city_names.size}"
+city_index = STDIN.gets.chomp
+#binding.break
+
+if city_names.has_key?(city_index)
+city = city_names[city_index]
+#puts "#{city["id"]}"
+#binding.break
+uri = URI.parse("https://xml.meteoservice.ru/export/gismeteo/point/#{city["id"]}.xml")
+else 
+abort 'Извините, этот город ещё не добавлен в нашу базу данных' 
 end
 
-city_id = CITIES[city_names[city_index - 1]]
-
-uri = URI.parse("https://xml.meteoservice.ru/export/gismeteo/point/#{city_id}.xml")
 response = Net::HTTP.get_response(uri)
 doc = REXML::Document.new(response.body)
 
@@ -46,4 +47,5 @@ forecast_nodes = doc.root.elements['REPORT/TOWN'].elements.to_a
 forecast_nodes.each do |node|
 puts city_name.uri_decode
 puts Forecast.from_xml(node)
+
 end
