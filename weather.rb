@@ -6,7 +6,7 @@ if Gem.win_platform?
     io.set_encoding(Encoding.default_external, Encoding.default_internal)
   end
 end
-#require 'telegram/bot'
+
 require 'rexml/document'
 require 'uri'
 require 'net/http'
@@ -14,8 +14,6 @@ require 'uri-handler'
 require 'json'
 require 'debug'
 require_relative 'Forecast'
-
-#TOKEN = "5275892175:AAHR22gLPKIDKne8Lm6ML_kuE_k7FB8R1cI"
 
 file = File.read('cities.json', encoding: "UTF-8")
 city_names = JSON.parse(file)
@@ -29,7 +27,6 @@ city_index = STDIN.gets.chomp
 
 if city_names.has_key?(city_index)
 city = city_names[city_index]
-#puts "#{city["id"]}"
 #binding.break
 uri = URI.parse("https://xml.meteoservice.ru/export/gismeteo/point/#{city["id"]}.xml")
 else 
@@ -47,5 +44,4 @@ forecast_nodes = doc.root.elements['REPORT/TOWN'].elements.to_a
 forecast_nodes.each do |node|
 puts city_name.uri_decode
 puts Forecast.from_xml(node)
-
 end
