@@ -19,7 +19,7 @@ require_relative 'Forecast'
 file = File.read('cities.json', encoding: "UTF-8")
 city_names = JSON.parse(file)
 
-TOKEN = "5275892175:AAHR22gLPKIDKne8Lm6ML_kuE_k7FB8R1cI"
+TOKEN = "   "
 
 
 Telegram::Bot::Client.run(TOKEN) do |bot|
